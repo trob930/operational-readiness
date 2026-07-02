@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0A0F1E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Op Readiness">
+<title>Operational Readiness</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── DESIGN TOKENS ──────────────────────────────────────────────────────── */
+:root {
+  --bg-0:       #0A0F1E;
+  --bg-1:       #111827;
+  --bg-2:       #1C2537;
+  --bg-3:       #243044;
+  --border:     rgba(255,255,255,0.08);
+  --border-hi:  rgba(255,255,255,0.15);
+
+  --text-1:     #F0F4FF;
+  --text-2:     #8B95B0;
+  --text-3:     #5A6480;
+
+  --optimal:    #22C55E;
+  --moderate:   #F59E0B;
+  --elevated:   #F97316;
+  --critical:   #EF4444;
+
+  --accent:     #3B82F6;
+  --accent-dim: rgba(59,130,246,0.15);
+
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  --radius:     12px;
+  --radius-sm:  8px;
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* ── RESET ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-0);
+  color: var(--text-1);
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── NAV ────────────────────────────────────────────────────────────────── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(10,15,30,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px;
+  height: 58px;
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 20px; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--text-1);
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-logo .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--optimal);
+  box-shadow: 0 0 8px var(--optimal);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.nav-tabs {
+  display: flex; gap: 4px;
+}
+.nav-tab {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  color: var(--text-3); padding: 6px 12px; border-radius: 6px;
+  transition: all 0.2s; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.nav-tab.active { background: var(--accent-dim); color: var(--accent); }
+.nav-tab:hover:not(.active) { color: var(--text-2); background: rgba(255,255,255,0.04); }
+
+/* ── SCREENS ────────────────────────────────────────────────────────────── */
+.screen { display: none; padding: 74px 0 calc(20px + var(--safe-bottom)); min-height: 100vh; }
+.screen.active { display: block; }
+.container { max-width: 480px; margin: 0 auto; padding: 0 18px; }
+
+/* ── ONBOARDING ─────────────────────────────────────────────────────────── */
+.onboard-hero {
+  text-align: center; padding: 32px 0 28px;
+}
+.onboard-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent-dim); border: 1px solid rgba(59,130,246,0.25);
+  border-radius: 20px; padding: 5px 14px; margin-bottom: 20px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+}
+.onboard-title {
+  font-family: var(--font-display);
+  font-size: 42px; font-weight: 700; line-height: 1;
+  letter-spacing: 0.02em; margin-bottom: 12px;
+}
+.onboard-title span { color: var(--accent); }
+.onboard-sub {
+  font-size: 14px; color: var(--text-2); line-height: 1.6; max-width: 300px; margin: 0 auto;
+}
+
+/* ── CARDS ──────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-family: var(--font-display);
+  font-size: 13px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-3);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title::before {
+  content: ''; display: block; width: 3px; height: 14px;
+  background: var(--accent); border-radius: 2px;
+}
+
+/* ── FORM ELEMENTS ──────────────────────────────────────────────────────── */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: block; font-size: 12px; font-weight: 500;
+  color: var(--text-2); margin-bottom: 6px; letter-spacing: 0.03em;
+}
+.field input, .field select {
+  width: 100%; background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-1); font-family: var(--font-body); font-size: 15px;
+  padding: 11px 13px; outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--accent);
+}
+.field select option { background: var(--bg-2); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── SLIDER ─────────────────────────────────────────────────────────────── */
+.slider-wrap { display: flex; align-items: center; gap: 12px; }
+.slider-wrap input[type=range] {
+  -webkit-appearance: none; flex: 1; height: 4px;
+  background: var(--bg-3); border-radius: 2px; outline: none;
+  border: none; padding: 0;
+}
+.slider-wrap input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: var(--accent);
+  cursor: pointer; box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+}
+.slider-val {
+  font-family: var(--font-mono); font-size: 14px; font-weight: 500;
+  color: var(--text-1); min-width: 24px; text-align: right;
+}
+
+/* ── BUTTONS ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: block; width: 100%;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  font-family: var(--font-display); font-size: 17px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 14px; cursor: pointer;
+  transition: all 0.2s; margin-top: 8px;
+}
+.btn:hover { background: #2563EB; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-outline {
+  background: transparent; border: 1px solid var(--border-hi);
+  color: var(--text-2); font-size: 14px;
+}
+.btn-outline:hover { background: var(--bg-2); color: var(--text-1); }
+
+/* ── READINESS GAUGE ─────────────────────────────────────────────────────── */
+.gauge-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 24px 0 20px;
+}
+.gauge-svg { width: 200px; height: 120px; }
+.gauge-score {
+  font-family: var(--font-display); font-size: 64px; font-weight: 700;
+  line-height: 1; letter-spacing: -0.02em; margin-top: -4px;
+}
+.gauge-label {
+  font-family: var(--font-display); font-size: 18px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; margin-top: 4px;
+}
+.gauge-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+
+/* ── METRIC GRID ─────────────────────────────────────────────────────────── */
+.metric-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;
+}
+.metric {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 14px 12px;
+}
+.metric-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 6px;
+}
+.metric-value {
+  font-family: var(--font-display); font-size: 28px; font-weight: 700;
+  line-height: 1;
+}
+.metric-unit {
+  font-size: 11px; color: var(--text-3); margin-top: 2px;
+}
+.metric-bar {
+  height: 3px; border-radius: 2px; background: var(--bg-3);
+  margin-top: 8px; overflow: hidden;
+}
+.metric-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+
+/* ── PRESCRIPTION CARD ───────────────────────────────────────────────────── */
+.rx-card {
+  border-radius: var(--radius); padding: 18px; margin-bottom: 10px;
+  border: 1px solid;
+}
+.rx-card.optimal { background: rgba(34,197,94,0.07); border-color: rgba(34,197,94,0.2); }
+.rx-card.moderate { background: rgba(245,158,11,0.07); border-color: rgba(245,158,11,0.2); }
+.rx-card.elevated { background: rgba(249,115,22,0.07); border-color: rgba(249,115,22,0.2); }
+.rx-card.critical { background: rgba(239,68,68,0.07); border-color: rgba(239,68,68,0.2); }
+.rx-type {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; margin-bottom: 6px; opacity: 0.7;
+}
+.rx-title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 700;
+  letter-spacing: 0.03em; margin-bottom: 8px;
+}
+.rx-detail { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+.rx-tags {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+}
+.rx-tag {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+  padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,0.06);
+  color: var(--text-2); text-transform: uppercase;
+}
+
+/* ── CAFFEINE ALERT ──────────────────────────────────────────────────────── */
+.caffeine-bar {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.caffeine-label { font-size: 12px; color: var(--text-3); margin-bottom: 3px; }
+.caffeine-time {
+  font-family: var(--font-mono); font-size: 20px; font-weight: 500; color: var(--text-1);
+}
+.caffeine-icon { font-size: 28px; }
+
+/* ── TREND CHART ─────────────────────────────────────────────────────────── */
+.trend-canvas { width: 100%; height: 100px; }
+
+/* ── HISTORY LIST ────────────────────────────────────────────────────────── */
+.history-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.history-item:last-child { border-bottom: none; }
+.history-date { font-size: 12px; color: var(--text-3); }
+.history-state {
+  font-family: var(--font-display); font-size: 14px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.history-score {
+  font-family: var(--font-mono); font-size: 14px; color: var(--text-2);
+}
+
+/* ── DEBT BADGE ──────────────────────────────────────────────────────────── */
+.debt-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg-2); border-radius: var(--radius-sm);
+  padding: 12px 14px; margin-bottom: 8px;
+}
+.debt-label { font-size: 12px; color: var(--text-3); }
+.debt-val {
+  font-family: var(--font-mono); font-size: 15px; font-weight: 500;
+}
+
+/* ── COACH DASHBOARD ─────────────────────────────────────────────────────── */
+.crew-grid { display: flex; flex-direction: column; gap: 8px; }
+.crew-row {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.crew-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 15px; font-weight: 700;
+  flex-shrink: 0;
+}
+.crew-name { font-size: 14px; font-weight: 500; flex: 1; }
+.crew-sub { font-size: 11px; color: var(--text-3); }
+.crew-badge {
+  font-family: var(--font-display); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 20px;
+}
+
+/* ── STATE COLORS ────────────────────────────────────────────────────────── */
+.col-optimal { color: var(--optimal); }
+.col-moderate { color: var(--moderate); }
+.col-elevated { color: var(--elevated); }
+.col-critical { color: var(--critical); }
+.bg-optimal { background: rgba(34,197,94,0.15); }
+.bg-moderate { background: rgba(245,158,11,0.15); }
+.bg-elevated { background: rgba(249,115,22,0.15); }
+.bg-critical { background: rgba(239,68,68,0.15); }
+
+/* ── EMPTY STATE ─────────────────────────────────────────────────────────── */
+.empty {
+  text-align: center; padding: 40px 20px;
+  color: var(--text-3); font-size: 14px; line-height: 1.6;
+}
+.empty-icon { font-size: 40px; margin-bottom: 14px; }
+
+/* ── SECTION DIVIDER ─────────────────────────────────────────────────────── */
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-3);
+  margin: 20px 0 10px;
+}
+
+/* ── SCROLL REVEAL ────────────────────────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.4s ease, transform 0.4s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ── TOAST ───────────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: calc(20px + var(--safe-bottom)); left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-2); border: 1px solid var(--border-hi);
+  color: var(--text-1); font-size: 13px; font-weight: 500;
+  padding: 10px 20px; border-radius: 24px;
+  opacity: 0; transition: all 0.3s; pointer-events: none;
+  white-space: nowrap; z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── NATIVE TIME INPUT ───────────────────────────────────────────────────── */
+input[type="time"] {
+  color-scheme: dark;
+}
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+  padding: 2px;
+}
+input[type="time"]:focus {
+  border-color: var(--accent);
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .gauge-score { font-size: 52px; }
+  .onboard-title { font-size: 36px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── INVITE GATE ───────────────────────────────────────────────────────── -->
+<div id="gate" style="position:fixed;inset:0;z-index:1000;background:var(--bg-0);display:flex;align-items:center;justify-content:center;padding:24px;">
+  <div style="max-width:340px;width:100%;text-align:center;">
+    <div style="font-size:40px;margin-bottom:18px;">🔒</div>
+    <div style="font-family:var(--font-display);font-size:30px;font-weight:700;letter-spacing:0.02em;margin-bottom:10px;">
+      INVITE ONLY
+    </div>
+    <p style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:24px;">
+      Operational Readiness is currently in private beta. Enter your invite code to continue.
+    </p>
+    <input type="text" id="gate-code" placeholder="Enter invite code"
+      style="width:100%;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;color:var(--text-1);font-family:var(--font-mono);font-size:16px;letter-spacing:0.08em;text-align:center;padding:13px;outline:none;text-transform:uppercase;margin-bottom:12px;"
+      onkeydown="if(event.key==='Enter')checkInvite()">
+    <button class="btn" onclick="checkInvite()">UNLOCK</button>
+    <div id="gate-error" style="color:var(--critical);font-size:12px;margin-top:10px;display:none;">Invalid code — check with your program coordinator.</div>
+    <p style="font-size:11px;color:var(--text-3);margin-top:24px;">No invite code? Contact your department coordinator for beta access.</p>
+  </div>
+</div>
+
+<!-- ── FIRST-RUN WIZARD ──────────────────────────────────────────────────────── -->
+<div id="wizard" style="display:none;position:fixed;inset:0;z-index:999;background:var(--bg-0);align-items:center;justify-content:center;padding:24px;overflow-y:auto;">
+  <div style="max-width:360px;width:100%;padding:20px 0;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:36px;margin-bottom:14px;">👋</div>
+      <div style="font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:0.02em;">QUICK SETUP</div>
+      <p style="font-size:13px;color:var(--text-2);margin-top:8px;line-height:1.5;">30 seconds, then you're in. You can change any of this later in Profile.</p>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label>Your name</label>
+        <input type="text" id="wiz-name" placeholder="First name is fine">
+      </div>
+      <div class="field">
+        <label>Role</label>
+        <select id="wiz-role">
+          <option value="">Select role</option>
+          <option value="fire">Firefighter</option>
+          <option value="ems">EMS / Paramedic</option>
+          <option value="leo">Law Enforcement</option>
+          <option value="military">Military</option>
+          <option value="dispatch">Dispatch</option>
+          <option value="public">General Public</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Bodyweight (lbs)</label>
+        <input type="number" id="wiz-weight" placeholder="185">
+      </div>
+      <div class="field">
+        <label>Time display</label>
+        <div style="display:flex;gap:10px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-1);font-weight:400;flex:1;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:10px;cursor:pointer;">
+            <input type="radio" name="wiz-time" value="12" checked style="width:auto;"> 12-hour
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-1);font-weight:400;flex:1;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:10px;cursor:pointer;">
+            <input type="radio" name="wiz-time" value="24" style="width:auto;"> 24-hour
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="completeWizard()">GET STARTED →</button>
+    <button class="btn-outline" style="width:100%;margin-top:10px;padding:11px;border-radius:8px;cursor:pointer;font-size:13px;background:transparent;border:1px solid var(--border-hi);color:var(--text-2);" onclick="skipWizard()">Skip for now</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">
+    <span class="dot"></span>
+    OP READINESS
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showScreen('log')">Log</button>
+    <button class="nav-tab" onclick="showScreen('results')">Status</button>
+    <button class="nav-tab" onclick="showScreen('workouts')">Train</button>
+    <button class="nav-tab" onclick="showScreen('history')">History</button>
+    <button class="nav-tab" onclick="showScreen('profile')">Profile</button>
+  </div>
+</nav>
+
+<!-- ── SCREEN: LOG ───────────────────────────────────────────────────────── -->
+<div id="screen-log" class="screen active">
+  <div class="container">
+
+    <div class="onboard-hero">
+      <div class="onboard-badge">⚡ Daily check-in</div>
+      <div class="onboard-title" id="log-greeting">HOW'S YOUR<br><span>BODY TODAY?</span></div>
+      <p class="onboard-sub">Your honest inputs drive real recommendations. Takes 90 seconds.</p>
+    </div>
+
+    <!-- Sleep -->
+    <div class="card reveal">
+      <div class="card-title">Sleep</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Hours slept last night</label>
+          <input type="number" id="s-hours" min="0" max="14" step="0.5" placeholder="6.5">
+        </div>
+        <div class="field">
+          <label>Sleep quality %</label>
+          <input type="number" id="s-quality" min="0" max="100" placeholder="72">
+        </div>
+      </div>
+      <div class="field">
+        <label>Morning HRV (ms) — optional</label>
+        <input type="number" id="s-hrv" placeholder="From Apple Watch / Whoop / Garmin">
+      </div>
+      <p style="font-size:11px;color:var(--text-3);margin-top:10px;line-height:1.5;">
+        ⚠ Manual entry for now. Wearable auto-sync removes the temptation to round up — coming in a future update.
+      </p>
+    </div>
+
+    <!-- Shift -->
+    <div class="card reveal">
+      <div class="card-title">Shift</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Shift type</label>
+          <select id="sh-type">
+            <option value="">Select</option>
+            <option value="Day">Day</option>
+            <option value="Night">Night</option>
+            <option value="Swing">Swing</option>
+            <option value="Off">Off</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Consecutive shifts</label>
+          <input type="number" id="sh-consec" min="0" max="14" placeholder="2">
+        </div>
+      </div>
+    </div>
+
+    <!-- Caffeine -->
+    <div class="card reveal">
+      <div class="card-title">Caffeine</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Total caffeine today (mg)</label>
+          <input type="number" id="c-mg" placeholder="300">
+        </div>
+        <div class="field">
+          <label>Last caffeine time</label>
+          <input type="time" id="c-time-hidden"
+            style="width:100%;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-family:var(--font-body);font-size:15px;padding:11px 13px;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;"
+            onchange="syncTimeDisplay('c-time-hidden','c-time-display')">
+        </div>
+      </div>
+      <div class="field">
+        <label style="margin-bottom:8px;">Stress level — <span id="stress-label">5</span>/10</label>
+        <div class="slider-wrap">
+          <span style="font-size:11px;color:var(--text-3)">Low</span>
+          <input type="range" id="c-stress" min="1" max="10" value="5"
+            oninput="document.getElementById('stress-label').textContent=this.value">
+          <span style="font-size:11px;color:var(--text-3)">High</span>
+        </div>
+      </div>
+      <div class="field" style="margin-top:14px;">
+        <label style="margin-bottom:8px;">Readiness (self-report) — <span id="ready-label">6</span>/10</label>
+        <div class="slider-wrap">
+          <span style="font-size:11px;color:var(--text-3)">Low</span>
+          <input type="range" id="c-readiness" min="1" max="10" value="6"
+            oninput="document.getElementById('ready-label').textContent=this.value">
+          <span style="font-size:11px;color:var(--text-3)">High</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="calculate()">CALCULATE READINESS →</button>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- ── SCREEN: RESULTS ───────────────────────────────────────────────────── -->
+<div id="screen-results" class="screen">
+  <div class="container">
+
+    <!-- Gauge -->
+    <div class="card" id="result-gauge-card">
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" viewBox="0 0 200 120">
+          <path d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12" stroke-linecap="round"/>
+          <path id="gauge-arc" d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="#3B82F6" stroke-width="12" stroke-linecap="round"
+            stroke-dasharray="251" stroke-dashoffset="251" style="transition:stroke-dashoffset 1s ease,stroke 0.5s ease"/>
+        </svg>
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.12em;color:var(--text-3);text-transform:uppercase;margin-top:4px;">Readiness Score</div>
+        <div class="gauge-score" id="result-score">—</div>
+        <div class="gauge-label" id="result-state">—</div>
+        <div class="gauge-sub" id="result-sub">Log your data to see readiness</div>
+      </div>
+    </div>
+
+    <!-- Strain breakdown -->
+    <div class="metric-grid" id="result-metrics" style="display:none">
+      <div class="metric">
+        <div class="metric-label">Sleep strain</div>
+        <div class="metric-value" id="m-sleep">—</div>
+        <div class="metric-unit">30% weight</div>
+        <div class="metric-bar"><div class="metric-bar-fill" id="mb-sleep" style="width:0%;background:var(--critical)"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Shift strain</div>
+        <div class="metric-value" id="m-shift">—</div>
+        <div class="metric-unit">15% weight</div>
+        <div class="metric-bar"><div class="metric-bar-fill" id="mb-shift" style="width:0%;background:var(--moderate)"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Stress strain</div>
+        <div class="metric-value" id="m-stress">—</div>
+        <div class="metric-unit">20% weight</div>
+        <div class="metric-bar"><div class="metric-bar-fill" id="mb-stress" style="width:0%;background:var(--elevated)"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Readiness strain</div>
+        <div class="metric-value" id="m-ready">—</div>
+        <div class="metric-unit">20% weight</div>
+        <div class="metric-bar"><div class="metric-bar-fill" id="mb-ready" style="width:0%;background:var(--accent)"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Caffeine strain</div>
+        <div class="metric-value" id="m-caff">—</div>
+        <div class="metric-unit">15% weight</div>
+        <div class="metric-bar"><div class="metric-bar-fill" id="mb-caff" style="width:0%;background:var(--moderate)"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">7-day sleep debt</div>
+        <div class="metric-value" id="m-debt">—</div>
+        <div class="metric-unit">hrs below target</div>
+        <div class="metric-bar"><div class="metric-bar-fill" id="mb-debt" style="width:0%;background:var(--elevated)"></div></div>
+      </div>
+    </div>
+
+    <!-- Dissociation / Override Alert -->
+    <div id="result-alert" style="display:none;margin-bottom:10px;"></div>
+
+    <!-- Prescription -->
+    <div id="result-rx" style="display:none">
+      <div class="section-label" id="rx-mode-label">Today's prescription</div>
+
+      <!-- Injury risk bar -->
+      <div id="rx-injury-bar" style="display:none;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+          <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-3)">Injury risk</span>
+          <span id="rx-injury-level" style="font-size:11px;font-weight:700;letter-spacing:0.06em;"></span>
+        </div>
+        <div style="height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden;">
+          <div id="rx-injury-fill" style="height:100%;border-radius:2px;transition:width 0.6s ease;"></div>
+        </div>
+      </div>
+
+      <!-- Training domains -->
+      <div id="rx-domains"></div>
+
+      <!-- Duty protocol (Critical only) -->
+      <div id="rx-duty-protocol" style="display:none;"></div>
+
+      <!-- Recovery card -->
+      <div class="rx-card" id="rx-recovery">
+        <div class="rx-type">Recovery target tonight</div>
+        <div class="rx-title" id="rx-rec-title">—</div>
+        <div class="rx-detail" id="rx-rec-detail">—</div>
+      </div>
+
+      <!-- Nutrition timing -->
+      <div id="rx-nutrition" style="display:none;"></div>
+    </div>
+
+    <!-- Caffeine cutoff -->
+    <div id="result-caffeine" style="display:none">
+      <div class="section-label">Caffeine protocol</div>
+      <div class="caffeine-bar">
+        <div>
+          <div class="caffeine-label">Last caffeine by</div>
+          <div class="caffeine-time" id="caff-cutoff">—</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:3px;" id="caff-note">—</div>
+        </div>
+        <div class="caffeine-icon">☕</div>
+      </div>
+    </div>
+
+    <!-- Trend -->
+    <div id="result-trend" style="display:none">
+      <div class="section-label">7-day readiness trend</div>
+      <div class="card" style="padding:14px 14px 10px;">
+        <canvas class="trend-canvas" id="trend-canvas"></canvas>
+      </div>
+    </div>
+
+    <div id="result-empty" class="empty">
+      <div class="empty-icon">📋</div>
+      <p>Fill in the Daily Log tab and tap<br><strong>Calculate Readiness</strong> to see your status.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── SCREEN: HISTORY ───────────────────────────────────────────────────── -->
+<div id="screen-history" class="screen">
+  <div class="container">
+    <div class="onboard-hero" style="padding-top:20px;">
+      <div class="onboard-title" style="font-size:32px;">HISTORY</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Sleep Debt (7-day rolling)</div>
+      <div id="debt-rows"></div>
+    </div>
+
+    <div class="section-label">All logs</div>
+    <div class="card" id="history-list">
+      <div class="empty">
+        <div class="empty-icon">📅</div>
+        <p>No logs yet. Complete your first Daily Log to start tracking.</p>
+      </div>
+    </div>
+
+    <button class="btn btn-outline" onclick="clearHistory()">Clear all history</button>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- ── SCREEN: WORKOUTS ──────────────────────────────────────────────────── -->
+<div id="screen-workouts" class="screen">
+  <div class="container">
+    <div class="onboard-hero" style="padding-top:20px;">
+      <div class="onboard-badge">🏋 Training</div>
+      <div class="onboard-title" style="font-size:32px;">TODAY'S<br><span>SESSION</span></div>
+      <p class="onboard-sub" id="workout-rx-summary">Log today's readiness first to get a tailored prescription.</p>
+    </div>
+
+    <!-- Today's prescription recap -->
+    <div class="card reveal" id="workout-prescription-card" style="display:none;">
+      <div class="card-title">Prescribed today</div>
+      <div id="workout-rx-detail"></div>
+    </div>
+
+    <!-- Quick log -->
+    <div class="card reveal">
+      <div class="card-title">Log today's session</div>
+      <div class="field">
+        <label>Did you train today?</label>
+        <select id="w-completed">
+          <option value="">Select</option>
+          <option value="yes">Yes</option>
+          <option value="modified">Modified / partial</option>
+          <option value="no">No — rest day</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Session type</label>
+        <select id="w-type">
+          <option value="">Select</option>
+          <option value="strength">Strength / resistance</option>
+          <option value="hiit">High intensity intervals</option>
+          <option value="zone2">Zone 2 cardio</option>
+          <option value="mobility">Mobility / breathwork</option>
+          <option value="skills">Tactical / skills practice</option>
+          <option value="rest">Rest</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Duration (min)</label>
+          <input type="number" id="w-duration" placeholder="45">
+        </div>
+        <div class="field">
+          <label>Perceived effort (1–10)</label>
+          <input type="number" id="w-rpe" min="1" max="10" placeholder="7">
+        </div>
+      </div>
+      <div class="field">
+        <label>Notes — exercises, weights, anything worth remembering</label>
+        <input type="text" id="w-notes" placeholder="e.g. Back squat 5x5 @ 225, felt strong">
+      </div>
+      <button class="btn" onclick="logWorkout()">SAVE SESSION</button>
+    </div>
+
+    <div class="section-label">Recent sessions</div>
+    <div class="card" id="workout-history-list">
+      <div class="empty">
+        <div class="empty-icon">💪</div>
+        <p>No sessions logged yet.</p>
+      </div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- ── SCREEN: PROFILE ───────────────────────────────────────────────────── -->
+<div id="screen-profile" class="screen">
+  <div class="container">
+    <div class="onboard-hero" style="padding-top:20px;">
+      <div class="onboard-title" style="font-size:32px;">PROFILE</div>
+    </div>
+
+    <!-- Basics -->
+    <div class="card reveal">
+      <div class="card-title">Basics</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="p-name" placeholder="Your name">
+        </div>
+        <div class="field">
+          <label>Bodyweight (lbs)</label>
+          <input type="number" id="p-weight" placeholder="185">
+        </div>
+      </div>
+      <div class="field">
+        <label>Role</label>
+        <select id="p-role">
+          <option value="">Select role</option>
+          <option value="fire">Firefighter</option>
+          <option value="ems">EMS / Paramedic</option>
+          <option value="leo">Law Enforcement</option>
+          <option value="military">Military</option>
+          <option value="dispatch">Dispatch</option>
+          <option value="public">General Public</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Preferences -->
+    <div class="card reveal">
+      <div class="card-title">Preferences</div>
+      <div class="field">
+        <label>Time format</label>
+        <select id="p-timeformat" onchange="saveProfile(); refreshTimeDisplays();">
+          <option value="12">12-hour (2:30 PM)</option>
+          <option value="24">24-hour (14:30)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Advanced - collapsible -->
+    <div class="card reveal">
+      <button onclick="toggleAdvanced()" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;padding:0;">
+        <div class="card-title" style="margin-bottom:0;">Performance details</div>
+        <span id="adv-chevron" style="color:var(--text-3);font-size:18px;transition:transform 0.2s;">⌄</span>
+      </button>
+      <div id="adv-content" style="display:none;margin-top:14px;">
+        <p style="font-size:12px;color:var(--text-3);margin-bottom:14px;line-height:1.5;">
+          Optional — helps tailor training recommendations beyond daily readiness. Update whenever you test.
+        </p>
+        <div class="field-row">
+          <div class="field">
+            <label>Body fat %</label>
+            <input type="number" id="p-bodyfat" placeholder="18" step="0.1">
+          </div>
+          <div class="field">
+            <label>Goal weight (lbs)</label>
+            <input type="number" id="p-goalweight" placeholder="175">
+          </div>
+        </div>
+        <div class="field">
+          <label>Last PT score / test result</label>
+          <input type="text" id="p-ptscore" placeholder="e.g. 285/300, or Pass">
+        </div>
+        <div class="field">
+          <label>PT test date</label>
+          <input type="date" id="p-ptdate">
+        </div>
+        <div class="field">
+          <label>Primary training goal</label>
+          <select id="p-goal">
+            <option value="">Select</option>
+            <option value="strength">Build strength</option>
+            <option value="endurance">Improve endurance / conditioning</option>
+            <option value="bodycomp">Body composition</option>
+            <option value="maintain">Maintain / injury prevention</option>
+            <option value="testprep">Prep for PT test</option>
+          </select>
+        </div>
+        <button class="btn btn-outline" onclick="saveProfile(); showToast('Profile saved')">SAVE DETAILS</button>
+      </div>
+    </div>
+
+    <!-- Supervisor view toggle -->
+    <div class="card reveal">
+      <div class="card-title">Supervisor / coach view</div>
+      <p style="font-size:12px;color:var(--text-3);margin-bottom:12px;line-height:1.5;">
+        For department coordinators monitoring crew readiness. Shows aggregate data only — never raw individual scores without consent.
+      </p>
+      <button class="btn btn-outline" onclick="showScreen('coach')">OPEN CREW OVERVIEW →</button>
+    </div>
+
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- ── SCREEN: COACH ──────────────────────────────────────────────────────── -->
+<div id="screen-coach" class="screen">
+  <div class="container">
+    <div class="onboard-hero" style="padding-top:20px;">
+      <div class="onboard-badge">👁 Supervisor view</div>
+      <div class="onboard-title" style="font-size:30px;">CREW<br><span>OVERVIEW</span></div>
+      <p class="onboard-sub">Aggregate readiness only. Individual data is never shared without consent.</p>
+    </div>
+
+    <button class="btn-outline" style="width:100%;margin-bottom:16px;padding:10px;border-radius:8px;cursor:pointer;font-size:13px;" onclick="showScreen('profile')">← Back to Profile</button>
+
+    <!-- Aggregate summary -->
+    <div class="metric-grid">
+      <div class="metric">
+        <div class="metric-label">Crew checked in</div>
+        <div class="metric-value col-optimal" id="coach-checkin">1</div>
+        <div class="metric-unit">today</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Avg readiness</div>
+        <div class="metric-value" id="coach-avg">—</div>
+        <div class="metric-unit">team average</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Optimal</div>
+        <div class="metric-value col-optimal" id="coach-optimal">—</div>
+        <div class="metric-unit">members</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Critical</div>
+        <div class="metric-value col-critical" id="coach-critical">—</div>
+        <div class="metric-unit">members</div>
+      </div>
+    </div>
+
+    <div class="section-label">Crew status (consent-shared only)</div>
+    <div class="crew-grid" id="coach-crew">
+      <!-- Demo data -->
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">Privacy model</div>
+      <div style="font-size:13px;color:var(--text-2);line-height:1.7;">
+        <p>✓ &nbsp;Individual data shared only with explicit opt-in</p>
+        <p>✓ &nbsp;Supervisors see state labels, not raw scores</p>
+        <p>✓ &nbsp;No data used for performance reviews or discipline</p>
+        <p>✓ &nbsp;User can revoke sharing at any time</p>
+        <p>✓ &nbsp;Logs stored locally on device by default</p>
+      </div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── ENGINE: ALL FORMULAS FROM VALIDATED SPREADSHEET ──────────────────────────
+
+const Engine = {
+
+  // Sleep Strain (30% weight)
+  // Hours + quality blend. Source: Van Dongen 2003 — impairment threshold at <7h
+  sleepStrain(hours, qualityPct) {
+    if (!hours) return 0;
+    const hoursComponent = Math.max(0, (7 - hours) / 7 * 100);
+    if (qualityPct !== null && qualityPct !== undefined && qualityPct !== '') {
+      return Math.max(0, (hoursComponent * 0.6) + ((100 - qualityPct) / 100 * 100 * 0.4));
+    }
+    return hoursComponent;
+  },
+
+  // Shift Strain (15% weight)
+  // Night: multiplier from shift 1. Day/Swing: multiplier after shift 3.
+  // Source: NIOSH circadian disruption research
+  shiftStrain(shiftType, consecutiveShifts) {
+    const consec = parseFloat(consecutiveShifts) || 0;
+    if (shiftType === 'Night') {
+      return 30 * (1 + Math.max(0, consec - 1) * 0.10);
+    } else if (shiftType === 'Day') {
+      return 10 * (consec > 3 ? 1 + (consec - 3) * 0.15 : 1);
+    } else if (shiftType === 'Swing') {
+      return 20 * (consec > 3 ? 1 + (consec - 3) * 0.15 : 1);
+    } else if (shiftType === 'Off') {
+      return 5; // Residual strain — off-day after shift block still carries debt
+    }
+    return 0;
+  },
+
+  // Stress Strain (20% weight)
+  stressStrain(stressLevel) {
+    return Math.max(0, (stressLevel - 1) / 4 * 100);
+  },
+
+  // Readiness Strain (20% weight)
+  // Note: self-report unreliable when sleep-deprived (Van Dongen "feel fine but perform badly")
+  readinessStrain(readiness) {
+    return Math.max(0, (10 - readiness) * 10);
+  },
+
+  // Caffeine Strain (15% weight)
+  // Exponential decay. k=0.115 ≈ 6h half-life (Nehlig 2010)
+  // Dose-dependent, shift-aware sleep onset
+  caffeineStrain(mgTotal, lastCaffeineTime, bodyweightLbs, shiftType) {
+    if (!mgTotal || !lastCaffeineTime || !bodyweightLbs) return 0;
+    const weightKg = bodyweightLbs > 120 ? bodyweightLbs * 0.453592 : bodyweightLbs;
+    const dosePerKg = mgTotal / weightKg;
+
+    // Shift-aware sleep onset
+    const onsetHour = shiftType === 'Night' ? 7 : (shiftType === 'Swing' ? 23 : 22);
+
+    // Parse last caffeine time
+    const [h, m] = lastCaffeineTime.split(':').map(Number);
+    const caffeineHour = h + m / 60;
+
+    // Hours from last caffeine to sleep onset
+    let hoursToSleep = onsetHour - caffeineHour;
+    if (hoursToSleep < 0) hoursToSleep += 24;
+
+    const strain = dosePerKg * Math.exp(-0.115 * hoursToSleep) * 8;
+    return Math.max(0, strain);
+  },
+
+  // Caffeine cutoff recommendation (dose-dependent)
+  // Source: Drake et al. SLEEP 2013 — 100mg = 4h, 300mg ≈ 10h clearance needed
+  caffeineCutoff(mgTotal, shiftType) {
+    if (!mgTotal) return null;
+    const clearanceHours = Math.min(12, Math.max(4, Math.round((mgTotal / 100) * 2 + 4)));
+    const onsetHour = shiftType === 'Night' ? 7 : (shiftType === 'Swing' ? 23 : 22);
+    let cutoffHour = onsetHour - clearanceHours;
+    if (cutoffHour < 0) cutoffHour += 24;
+    const h = Math.floor(cutoffHour);
+    const m = Math.round((cutoffHour - h) * 60);
+    return {
+      display: formatTimeForDisplay(h, m),
+      note: `Based on ${mgTotal}mg — needs ~${clearanceHours}h to clear before sleep`
+    };
+  },
+
+  // 7-Day Sleep Debt
+  // Target: 49hrs (7h/night). Source: Van Dongen 2003
+  sleepDebt(recentHours) {
+    const sum = recentHours.reduce((a, b) => a + (parseFloat(b) || 0), 0);
+    const days = recentHours.length;
+    return Math.max(0, (7 * days) - sum);
+  },
+
+  // Recovery Compliance Score
+  complianceScore(targetHours, actualHours, sessionCompleted) {
+    if (!targetHours || !actualHours) return 0;
+    const base = (actualHours / targetHours) * 100;
+    const multiplier = sessionCompleted === 'yes' ? 1.0 : 0.70;
+    return Math.min(100, base * multiplier);
+  },
+
+  // Total Strain (weighted sum)
+  totalStrain(sleep, shift, stress, readiness, caffeine) {
+    return (sleep * 0.30) + (shift * 0.15) + (stress * 0.20) + (readiness * 0.20) + (caffeine * 0.15);
+  },
+
+  // Adjusted Strain (after compliance)
+  adjustedStrain(total, compliance) {
+    return total * (1 - compliance / 200);
+  },
+
+  // Range State from adjusted strain
+  rangeState(adjustedStrain) {
+    if (adjustedStrain < 30) return 'Optimal';
+    if (adjustedStrain < 60) return 'Moderate';
+    if (adjustedStrain < 80) return 'Elevated';
+    return 'Critical';
+  },
+
+  // Full prescription from range state — with domain-specific training, duty mode, and injury risk flags
+  prescription(state, shiftType, consecutiveShifts, debt, hours, quality, stress, readiness, hrv, history) {
+    const night = shiftType === 'Night';
+    const highConsec = (consecutiveShifts || 0) >= 3;
+    const qualityNum = quality !== '' ? parseFloat(quality) : null;
+
+    // ── LAYER 1: Subjective-Objective Override ───────────────────────────────
+    // When sleep debt or quality contradicts self-report, dampen optimistic inputs.
+    // Source: Van Dongen 2003 — subjects rated themselves fine while performing poorly.
+    let dissociationFlag = null;
+    let adjustedState = state;
+
+    const objectiveStrain = (debt > 7) ? 'high' : (debt > 3) ? 'moderate' : 'low';
+    const subjectiveOptimism = (readiness >= 7 && stress <= 4);
+
+    if (objectiveStrain === 'high' && subjectiveOptimism) {
+      // Hard override: debt > 7h + feeling great = dissociation likely
+      if (state === 'Optimal') adjustedState = 'Moderate';
+      if (state === 'Moderate') adjustedState = 'Elevated';
+      dissociationFlag = {
+        type: 'override',
+        message: `Your readiness feels high but your sleep debt is ${debt.toFixed(1)}h. Research shows people consistently overestimate readiness when sleep-deprived — your nervous system doesn't have the capacity to accurately assess its own impairment right now. Recommendations adjusted.`
+      };
+    } else if (objectiveStrain === 'moderate' && subjectiveOptimism && qualityNum !== null && qualityNum < 60) {
+      // Soft flag: moderate debt + poor quality + feeling fine
+      dissociationFlag = {
+        type: 'flag',
+        message: `Sleep quality was ${qualityNum}% but you're rating readiness at ${readiness}/10. Low sleep quality suppresses performance even when duration looks adequate. Consider this a caution day.`
+      };
+    }
+
+    // ── LAYER 2: Consecutive Days Trend Warning ──────────────────────────────
+    // If user has self-rated 7+ readiness for 3+ consecutive logs while debt climbs
+    let trendFlag = null;
+    if (history && history.length >= 3) {
+      const recent = history.slice(-3);
+      const allHighSelfReport = recent.every(h => parseFloat(h.readiness) >= 65); // readiness score ≥65 = felt good
+      const debtClimbing = debt > 5;
+      if (allHighSelfReport && debtClimbing) {
+        trendFlag = `You've logged high readiness scores for ${recent.length}+ consecutive days while carrying a growing sleep debt. This pattern — feeling fine while debt accumulates — is a documented sign of adapted fatigue. Your performance baseline has likely shifted lower than it feels.`;
+      }
+    }
+
+    // ── LAYER 3: HRV Override ───────────────────────────────────────────────
+    // HRV significantly below personal norm = objective nervous system signal
+    // (Personal baseline tracking added when wearable integration is built)
+    let hrvFlag = null;
+    if (hrv && hrv < 40) {
+      hrvFlag = `Morning HRV of ${hrv}ms is low. HRV reflects autonomic nervous system recovery — values this low indicate your body hasn't recovered regardless of how you feel. Treat this as Elevated minimum.`;
+      if (adjustedState === 'Optimal') adjustedState = 'Elevated';
+      if (adjustedState === 'Moderate') adjustedState = 'Elevated';
+    }
+
+    // ── INJURY RISK SCORE ────────────────────────────────────────────────────
+    // Composite risk: sleep debt + quality + consecutive shifts
+    // Source: Mah et al. 2011 (athlete sleep/injury), JOEM shift work injury data
+    const injuryRisk = Math.min(100,
+      (debt / 14 * 40) +
+      (qualityNum !== null ? (100 - qualityNum) / 100 * 30 : 15) +
+      (Math.min(consecutiveShifts, 5) / 5 * 30)
+    );
+    const injuryLevel = injuryRisk > 65 ? 'HIGH' : injuryRisk > 35 ? 'MODERATE' : 'LOW';
+
+    // ── PRESCRIPTIONS BY STATE ───────────────────────────────────────────────
+    const prescriptions = {
+
+      Optimal: {
+        mode: 'PERFORM',
+        training: {
+          title: 'High Performance Training',
+          detail: 'Nervous system is recovered and hormonal environment is favorable for adaptation. This is the window to make real gains. Push compound strength work, high-intensity intervals, or tactical conditioning.',
+          domains: [
+            { name: 'Strength', detail: 'Compound lifts at 75–90% 1RM. Prioritize squat, deadlift, press, pull patterns. 3–5 sets, rest fully between sets.', tags: ['75–90% 1RM', '3–5 sets', 'Full rest'] },
+            { name: 'Conditioning', detail: 'High-intensity intervals or tactical circuits. 20–40 min. Push hard — your body can absorb and adapt.', tags: ['HIIT', 'Intervals', '20–40 min'] },
+            { name: 'Tactical', detail: 'Loaded carries, obstacle work, job-specific movement at full effort. This is when to practice at intensity.', tags: ['Loaded carries', 'Full effort'] },
+          ],
+          injuryNote: null,
+          nutritionTiming: 'Protein within 30 min post-training. Carbohydrate loading appropriate — your body will use it for glycogen replenishment and repair.'
+        },
+        recovery: { title: '7 hours minimum', targetHours: 7, detail: 'Maintain consistency. Same bedtime, same wakeup. Sleep at this state locks in training adaptations — growth hormone peaks in deep sleep.' }
+      },
+
+      Moderate: {
+        mode: 'TRAIN SMART',
+        training: {
+          title: 'Quality Over Intensity',
+          detail: 'Enough capacity for productive work but not peak output. Shift emphasis from loading to movement quality, aerobic base, and skill. You can train — just not at maximal intensity.',
+          domains: [
+            { name: 'Strength', detail: 'Reduce load to 60–70% 1RM. Focus on movement quality and time under tension rather than max weight. 3 sets, moderate rest.', tags: ['60–70% 1RM', 'Movement quality', '3 sets'] },
+            { name: 'Conditioning', detail: 'Zone 2 aerobic work — conversational pace, 30–45 min. Builds aerobic base without digging a deeper recovery hole.', tags: ['Zone 2', '60–70% max HR', '30–45 min'] },
+            { name: 'Mobility', detail: '10–15 min targeted mobility work. Focus on hips, thoracic spine, shoulders — areas that take the most abuse on duty.', tags: ['Hips', 'T-spine', 'Shoulders'] },
+          ],
+          injuryNote: injuryLevel !== 'LOW' ? `Injury risk is ${injuryLevel}. Avoid maximal loads and rapid deceleration movements. Warm up thoroughly — connective tissue is more vulnerable when sleep-compromised.` : null,
+          nutritionTiming: 'Moderate carbohydrate intake. Prioritize protein at each meal to support recovery. Avoid training fasted if sleep was under 6 hours.'
+        },
+        recovery: { title: '8 hours target', targetHours: 8, detail: 'Your body is carrying load. Sleep is more important than an extra workout. Prioritize sleep over late-night screens or early morning training. A 20-min nap before a night shift can offset some deficit.' }
+      },
+
+      Elevated: {
+        mode: 'RECOVERY TRAINING',
+        training: {
+          title: 'Move Without Loading',
+          detail: 'Training at high intensity right now will increase cortisol, suppress immune function, and increase injury probability without producing meaningful adaptation. Move, but don\'t load your system.',
+          domains: [
+            { name: 'Mobility', detail: '20–30 min full body mobility flow. Joint circles, hip openers, thoracic rotation. This maintains range of motion and promotes blood flow without stressing the CNS.', tags: ['Full body', '20–30 min', 'Low CNS load'] },
+            { name: 'Breathwork', detail: 'Box breathing (4-4-4-4) or physiological sigh protocol (double inhale + long exhale). 5–10 min. Activates parasympathetic nervous system — directly counteracts shift-work cortisol load.', tags: ['Box breath', 'Parasympathetic', '5–10 min'] },
+            { name: 'Light Movement', detail: 'Walk 15–20 min at easy pace. No loaded carries, no intensity. Movement promotes lymphatic drainage and sleep pressure buildup.', tags: ['Easy walk', '15–20 min', 'No load'] },
+          ],
+          injuryNote: `Injury risk is ${injuryLevel}. Reaction time and proprioception are measurably impaired at this strain level. Avoid any high-speed, high-impact, or maximal-load activities on duty or in training.`,
+          nutritionTiming: 'Anti-inflammatory nutrition focus. Omega-3s, colorful vegetables, adequate protein. Avoid excessive caffeine — it masks fatigue without restoring performance.'
+        },
+        recovery: { title: '8–9 hours target', targetHours: 8.5, detail: 'Sleep is the highest-leverage intervention available to you right now. Dark room, 65–68°F, no screens 60 min before bed. Magnesium glycinate 300mg before bed is evidence-supported for sleep quality.' }
+      },
+
+      Critical: {
+        mode: 'DUTY MODE',
+        training: {
+          title: 'Duty Mode — Damage Control',
+          detail: 'You are below the line where training produces adaptation. Any high-intensity effort right now suppresses immune function, elevates inflammatory markers, and significantly increases injury risk. Your mission is to stay operational and stop the deficit from growing.',
+          domains: [
+            { name: 'Breathwork', detail: 'This is your training for today. 4-7-8 breathing (inhale 4s, hold 7s, exhale 8s) activates the vagus nerve and reduces cortisol. 10 min. Do it on shift if you can.', tags: ['4-7-8 protocol', 'Vagus nerve', '10 min'] },
+            { name: 'Micro-movement', detail: 'Every 90 min on duty: 5 air squats, 10 shoulder circles, neck rolls. Prevents stiffness and maintains circulation without adding stress load.', tags: ['Every 90 min', 'No load', 'Circulation'] },
+            { name: 'Pre-shift nap', detail: 'If possible: 20-min nap 7–8 hours before shift (not closer — sleep inertia risk). NASA and NIOSH research confirms this as the most effective performance preservation tool for shift workers.', tags: ['20 min', '7–8h pre-shift', 'NIOSH protocol'] },
+          ],
+          injuryNote: `⚠ HIGH injury risk. Your reaction time may be impaired by up to 50% (equivalent to legal intoxication at this debt level). Avoid any discretionary high-risk physical activity. If tactical deployment is required, communicate your status to your supervisor.`,
+          nutritionTiming: 'Strategic caffeine: 100mg now, wait 90 min before more. Do not exceed 400mg total. Hydrate — dehydration amplifies cognitive impairment from sleep loss. Avoid alcohol completely — it fragments sleep architecture even in small amounts.',
+          dutyProtocol: {
+            title: 'On-shift survival protocol',
+            steps: [
+              'Caffeine: dose now, track your cutoff time',
+              'Eat protein + complex carbs every 3–4 hours',
+              'Box breathing when cortisol spikes (incident response)',
+              '90-min movement breaks — stay loose, stay alert',
+              'Communicate load to partner or officer — safety in pairs',
+              'Tonight: 9+ hours is the target, non-negotiable'
+            ]
+          }
+        },
+        recovery: { title: '9+ hours — non-negotiable', targetHours: 9, detail: 'One night of full sleep will not clear this debt but it will stop the bleeding. Prioritize sleep over everything tonight. If consecutive nights are stacking: discuss schedule with supervisor. This is a safety issue, not a preference.' }
+      }
+    };
+
+    const rx = prescriptions[adjustedState];
+
+    // Attach computed flags to result
+    rx.dissociationFlag = dissociationFlag;
+    rx.trendFlag = trendFlag;
+    rx.hrvFlag = hrvFlag;
+    rx.injuryRisk = injuryRisk;
+    rx.injuryLevel = injuryLevel;
+    rx.adjustedState = adjustedState;
+    rx.originalState = state;
+    rx.wasOverridden = adjustedState !== state;
+
+    if (night && highConsec) {
+      rx.recovery.detail += ' Pre-shift nap (90 min, 7+ hours before shift) is NIOSH-recommended for consecutive night workers.';
+    }
+
+    return rx;
+  }
+};
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+
+let appState = {
+  lastResult: null,
+  history: JSON.parse(localStorage.getItem('or_history') || '[]')
+};
+
+// ── CALCULATE ────────────────────────────────────────────────────────────────
+
+function highlightMissing(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = 'var(--critical)';
+  el.style.boxShadow = '0 0 0 2px rgba(239,68,68,0.2)';
+  setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 2500);
+}
+
+function calculate() {
+  const weight     = parseFloat(document.getElementById('p-weight').value) || parseFloat(appState.profile?.weight) || 180;
+  const hours      = parseFloat(document.getElementById('s-hours').value);
+  const quality    = document.getElementById('s-quality').value;
+  const hrv        = parseFloat(document.getElementById('s-hrv').value) || null;
+  const shiftType  = document.getElementById('sh-type').value;
+  const consec     = parseFloat(document.getElementById('sh-consec').value) || 0;
+  const caffMg     = parseFloat(document.getElementById('c-mg').value) || 0;
+  const caffTime   = document.getElementById('c-time-hidden').value;
+  const stress     = parseFloat(document.getElementById('c-stress').value) || 5;
+  const readiness  = parseFloat(document.getElementById('c-readiness').value) || 6;
+  // Auto-compliance: yesterday's prescribed sleep vs today's logged hours (same night)
+  const yesterday  = appState.history.length > 0 ? appState.history[appState.history.length - 1] : null;
+  const rTarget    = yesterday ? (yesterday.prescribedSleep || 8) : 8;
+  const rActual    = hours;
+  const rSession   = yesterday ? (yesterday.workoutCompleted || 'no') : 'no';
+
+  // Validate required fields — highlight missing ones
+  const missing = [];
+  if (!hours || isNaN(hours) || hours <= 0 || hours > 24) {
+    missing.push('s-hours');
+  }
+  if (!shiftType) {
+    missing.push('sh-type');
+  }
+  if (missing.length > 0) {
+    missing.forEach(id => highlightMissing(id));
+    showToast(missing.length === 2
+      ? 'Enter hours slept and select shift type'
+      : missing[0] === 's-hours'
+        ? 'Enter how many hours you slept'
+        : 'Select your shift type');
+    return;
+  }
+
+  // Run engine
+  const sl  = Engine.sleepStrain(hours, quality !== '' ? parseFloat(quality) : null);
+  const sh  = Engine.shiftStrain(shiftType, consec);
+  const st  = Engine.stressStrain(stress);
+  const rd  = Engine.readinessStrain(readiness);
+  const ca  = Engine.caffeineStrain(caffMg, caffTime, weight || 180, shiftType);
+  const tot = Engine.totalStrain(sl, sh, st, rd, ca);
+  const comp = Engine.complianceScore(rTarget, rActual, rSession);
+  const adj  = Engine.adjustedStrain(tot, comp);
+  const state = Engine.rangeState(adj);
+
+  // 7-day debt — must be calculated BEFORE prescription() which uses it
+  const recentHours = [...appState.history.slice(-6).map(h => h.hours), hours];
+  const debt = Engine.sleepDebt(recentHours);
+
+  const rx    = Engine.prescription(state, shiftType, consec, debt, hours, quality, stress, readiness, hrv, appState.history);
+  const cutoff = Engine.caffeineCutoff(caffMg, shiftType);
+
+  const result = {
+    date: new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}),
+    timestamp: Date.now(),
+    hours, quality, shiftType, consec, caffMg, stress, readiness,
+    sl, sh, st, rd, ca, tot, comp, adj, state, rx, cutoff, debt, hrv
+  };
+
+  // Save to history
+  appState.lastResult = result;
+  appState.history.push({ date: result.date, timestamp: result.timestamp, hours: hours || 0, state, readiness: (100 - adj).toFixed(1), prescribedSleep: result.rx.recovery.targetHours, workoutCompleted: 'no' });
+  if (appState.history.length > 30) appState.history.shift();
+  localStorage.setItem('or_history', JSON.stringify(appState.history));
+
+  renderResults(result);
+  showScreen('results');
+}
+
+// ── RENDER RESULTS ───────────────────────────────────────────────────────────
+
+function renderResults(r) {
+  const stateClass = r.state.toLowerCase();
+  const stateColor = { Optimal: '#22C55E', Moderate: '#F59E0B', Elevated: '#F97316', Critical: '#EF4444' }[r.state];
+
+  // Gauge
+  const arc = document.getElementById('gauge-arc');
+  const pct = Math.max(0, Math.min(100 - r.adj, 100)) / 100;
+  // Arc length ~251 for the semicircle
+  const offset = 251 - (251 * pct);
+  setTimeout(() => {
+    arc.style.strokeDashoffset = offset;
+    arc.style.stroke = stateColor;
+  }, 100);
+
+  const readinessScore = Math.round(100 - r.adj);
+  document.getElementById('result-score').textContent = readinessScore;
+  document.getElementById('result-score').style.color = stateColor;
+  document.getElementById('result-state').textContent = r.state.toUpperCase();
+  document.getElementById('result-state').style.color = stateColor;
+  document.getElementById('result-sub').textContent =
+    { Optimal: 'Ready to perform', Moderate: 'Train with caution', Elevated: 'Recovery focus', Critical: 'Rest required' }[r.state];
+
+  // Metrics
+  document.getElementById('result-metrics').style.display = 'grid';
+  const setMetric = (id, val, max) => {
+    document.getElementById(id).textContent = Math.round(val);
+    document.getElementById('mb-' + id.replace('m-','')).style.width = Math.min(100, val/max*100) + '%';
+  };
+  setMetric('m-sleep', r.sl, 100);
+  setMetric('m-shift', r.sh, 50);
+  setMetric('m-stress', r.st, 100);
+  setMetric('m-ready', r.rd, 100);
+  setMetric('m-caff', r.ca, 30);
+  document.getElementById('m-debt').textContent = r.debt.toFixed(1) + 'h';
+  document.getElementById('mb-debt').style.width = Math.min(100, r.debt / 14 * 100) + '%';
+
+  // ── Override / dissociation alerts ────────────────────────────────────────
+  const alertEl = document.getElementById('result-alert');
+  const alerts = [r.rx.dissociationFlag, r.rx.trendFlag ? {type:'trend', message: r.rx.trendFlag} : null, r.rx.hrvFlag ? {type:'hrv', message: r.rx.hrvFlag} : null].filter(Boolean);
+  if (alerts.length > 0) {
+    alertEl.style.display = 'block';
+    alertEl.innerHTML = alerts.map(a => `
+      <div style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.25);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--elevated);margin-bottom:6px;">
+          ${a.type === 'override' ? '⚠ Readiness Override' : a.type === 'trend' ? '📈 Trend Alert' : '💓 HRV Alert'}
+        </div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.6;">${a.message}</div>
+      </div>
+    `).join('');
+    if (r.rx.wasOverridden) {
+      alertEl.innerHTML += `<div style="font-size:11px;color:var(--text-3);margin-bottom:8px;padding:0 4px;">Showing prescription for <strong style="color:var(--text-2)">${r.rx.adjustedState}</strong> state (adjusted from ${r.rx.originalState})</div>`;
+    }
+  } else {
+    alertEl.style.display = 'none';
+  }
+
+  // ── Mode label ─────────────────────────────────────────────────────────────
+  document.getElementById('result-rx').style.display = 'block';
+  const modeColors = { 'PERFORM':'var(--optimal)', 'TRAIN SMART':'var(--moderate)', 'RECOVERY TRAINING':'var(--elevated)', 'DUTY MODE':'var(--critical)' };
+  document.getElementById('rx-mode-label').innerHTML =
+    `<span style="color:${modeColors[r.rx.mode] || 'var(--text-3)'}">⬤</span> ${r.rx.mode} — ${r.rx.training.title}`;
+
+  // ── Injury risk bar ────────────────────────────────────────────────────────
+  const injuryBar = document.getElementById('rx-injury-bar');
+  injuryBar.style.display = 'block';
+  const injColors = { LOW: 'var(--optimal)', MODERATE: 'var(--moderate)', HIGH: 'var(--critical)' };
+  document.getElementById('rx-injury-level').textContent = r.rx.injuryLevel;
+  document.getElementById('rx-injury-level').style.color = injColors[r.rx.injuryLevel];
+  document.getElementById('rx-injury-fill').style.width = r.rx.injuryRisk + '%';
+  document.getElementById('rx-injury-fill').style.background = injColors[r.rx.injuryLevel];
+
+  // ── Training domains ───────────────────────────────────────────────────────
+  const domainsEl = document.getElementById('rx-domains');
+  const sc = r.rx.adjustedState.toLowerCase().replace(' ', '-');
+  const cardClass = { optimal:'optimal', moderate:'moderate', elevated:'elevated', 'duty-mode':'critical', 'recovery-training':'elevated' }[sc] || stateClass;
+
+  // Injury note first if present
+  let domainsHtml = '';
+  if (r.rx.training.injuryNote) {
+    domainsHtml += `<div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:13px;color:var(--text-2);line-height:1.6;">
+      <span style="font-weight:600;color:var(--critical);">Injury risk note — </span>${r.rx.training.injuryNote}
+    </div>`;
+  }
+
+  // Overview card
+  domainsHtml += `<div class="rx-card ${cardClass}" style="margin-bottom:10px;">
+    <div class="rx-type">Today's approach</div>
+    <div class="rx-detail" style="margin-top:2px;">${r.rx.training.detail}</div>
+  </div>`;
+
+  // Domain breakdown — collapsible feel via details/summary
+  r.rx.training.domains.forEach(d => {
+    domainsHtml += `
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:5px;">${d.name}</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:8px;">${d.detail}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">${d.tags.map(t => `<span class="rx-tag">${t}</span>`).join('')}</div>
+      </div>`;
+  });
+  domainsEl.innerHTML = domainsHtml;
+
+  // ── Duty protocol (Critical only) ─────────────────────────────────────────
+  const dutyEl = document.getElementById('rx-duty-protocol');
+  if (r.rx.training.dutyProtocol) {
+    dutyEl.style.display = 'block';
+    dutyEl.innerHTML = `
+      <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:16px;margin-bottom:10px;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--critical);margin-bottom:10px;">${r.rx.training.dutyProtocol.title}</div>
+        ${r.rx.training.dutyProtocol.steps.map((s,i) => `
+          <div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <span style="font-family:var(--font-mono);font-size:11px;color:var(--critical);flex-shrink:0;margin-top:1px;">${String(i+1).padStart(2,'0')}</span>
+            <span style="font-size:13px;color:var(--text-2);line-height:1.5;">${s}</span>
+          </div>`).join('')}
+      </div>`;
+  } else {
+    dutyEl.style.display = 'none';
+  }
+
+  // ── Recovery card ─────────────────────────────────────────────────────────
+  const recCard = document.getElementById('rx-recovery');
+  recCard.className = 'rx-card ' + cardClass;
+  document.getElementById('rx-rec-title').textContent = r.rx.recovery.title;
+  document.getElementById('rx-rec-detail').textContent = r.rx.recovery.detail;
+
+  // ── Nutrition timing ──────────────────────────────────────────────────────
+  const nutrEl = document.getElementById('rx-nutrition');
+  if (r.rx.training.nutritionTiming) {
+    nutrEl.style.display = 'block';
+    nutrEl.innerHTML = `
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:10px;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:5px;">Nutrition timing</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.6;">${r.rx.training.nutritionTiming}</div>
+      </div>`;
+  }
+
+  // Caffeine cutoff
+  if (r.cutoff) {
+    document.getElementById('result-caffeine').style.display = 'block';
+    document.getElementById('caff-cutoff').textContent = r.cutoff.display;
+    document.getElementById('caff-note').textContent = r.cutoff.note;
+  }
+
+  // Trend chart
+  if (appState.history.length > 1) {
+    document.getElementById('result-trend').style.display = 'block';
+    drawTrendChart();
+  }
+
+  document.getElementById('result-empty').style.display = 'none';
+
+  // Coach summary
+  updateCoachView(r);
+}
+
+// ── TREND CHART ───────────────────────────────────────────────────────────────
+
+function drawTrendChart() {
+  const canvas = document.getElementById('trend-canvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.offsetWidth * dpr;
+  canvas.height = canvas.offsetHeight * dpr;
+  ctx.scale(dpr, dpr);
+
+  const w = canvas.offsetWidth;
+  const h = canvas.offsetHeight;
+  const data = appState.history.slice(-7);
+  const scores = data.map(d => parseFloat(d.readiness));
+  const maxScore = 100;
+
+  ctx.clearRect(0,0,w,h);
+
+  // Grid lines (readiness thresholds: 70=Optimal, 40=Moderate, 20=Elevated)
+  [20,40,70].forEach(y => {
+    const ypos = h - (y / maxScore) * (h - 20) - 6;
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(0, ypos); ctx.lineTo(w, ypos); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.font = '9px Inter'; ctx.fillText(y, 2, ypos - 2);
+  });
+
+  if (scores.length < 2) return;
+
+  // Color zones fill (readiness: higher = better)
+  const colorAt = val => val >= 70 ? '#22C55E' : val >= 40 ? '#F59E0B' : val >= 20 ? '#F97316' : '#EF4444';
+
+  // Line
+  const xStep = w / (scores.length - 1);
+  const yAt = v => h - (v / maxScore) * (h - 20) - 6;
+
+  // Gradient fill under line
+  const gradient = ctx.createLinearGradient(0, 0, 0, h);
+  gradient.addColorStop(0, 'rgba(59,130,246,0.25)');
+  gradient.addColorStop(1, 'rgba(59,130,246,0)');
+
+  ctx.beginPath();
+  scores.forEach((s, i) => {
+    const x = i * xStep;
+    const y = yAt(s);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo((scores.length - 1) * xStep, h);
+  ctx.lineTo(0, h);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // Line stroke
+  ctx.beginPath();
+  scores.forEach((s, i) => {
+    const x = i * xStep;
+    const y = yAt(s);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = '#3B82F6';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+  ctx.stroke();
+
+  // Dots
+  scores.forEach((s, i) => {
+    const x = i * xStep;
+    const y = yAt(s);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = colorAt(s);
+    ctx.fill();
+    ctx.strokeStyle = '#0A0F1E';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+}
+
+// ── HISTORY ──────────────────────────────────────────────────────────────────
+
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  const history = [...appState.history].reverse();
+  if (!history.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No logs yet.</p></div>';
+    return;
+  }
+  const stateColor = { Optimal:'col-optimal', Moderate:'col-moderate', Elevated:'col-elevated', Critical:'col-critical' };
+  el.innerHTML = history.map(h => `
+    <div class="history-item">
+      <div>
+        <div class="history-date">${h.date}</div>
+        <div class="history-state ${stateColor[h.state] || ''}">${h.state || '—'}</div>
+      </div>
+      <div class="history-score">${h.readiness}</div>
+    </div>
+  `).join('');
+
+  // Debt tracker
+  const recentHours = appState.history.slice(-7).map(h => h.hours || 0);
+  const debt = Engine.sleepDebt(recentHours);
+  document.getElementById('debt-rows').innerHTML = `
+    <div class="debt-row">
+      <div><div class="debt-label">7-day sleep debt</div><div style="font-size:11px;color:var(--text-3)">Target: 49hrs (7h/night)</div></div>
+      <div class="debt-val ${debt > 7 ? 'col-critical' : debt > 3 ? 'col-elevated' : 'col-optimal'}">${debt.toFixed(1)}h</div>
+    </div>
+    <div class="debt-row">
+      <div><div class="debt-label">Logs this week</div></div>
+      <div class="debt-val">${Math.min(7, appState.history.length)}/7</div>
+    </div>
+  `;
+}
+
+function clearHistory() {
+  if (confirm('Clear all log history?')) {
+    appState.history = [];
+    localStorage.removeItem('or_history');
+    renderHistory();
+    showToast('History cleared');
+  }
+}
+
+// ── COACH VIEW ────────────────────────────────────────────────────────────────
+
+function updateCoachView(result) {
+  document.getElementById('coach-avg').textContent = Math.round(100 - result.adj);
+  document.getElementById('coach-avg').className = 'metric-value col-' + result.state.toLowerCase();
+  document.getElementById('coach-optimal').textContent = result.state === 'Optimal' ? 1 : 0;
+  document.getElementById('coach-critical').textContent = result.state === 'Critical' ? 1 : 0;
+
+  // Demo crew data (in real app, fetched from shared backend)
+  const demoCrewBase = [
+    { initials:'MR', name:'M. Rodriguez', shift:'Night', state:'Elevated' },
+    { initials:'TK', name:'T. Kim',       shift:'Day',   state:'Optimal'  },
+    { initials:'JW', name:'J. Washington', shift:'Off',  state:'Moderate' },
+    { initials:'AS', name:'A. Singh',      shift:'Night', state:'Critical' },
+  ];
+
+  const name = document.getElementById('p-name').value;
+  const crew = [
+    { initials: name ? name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2) : 'ME',
+      name: name || 'You', shift: result.shiftType || 'Day', state: result.state },
+    ...demoCrewBase
+  ];
+
+  const stateColor = { Optimal:'bg-optimal col-optimal', Moderate:'bg-moderate col-moderate', Elevated:'bg-elevated col-elevated', Critical:'bg-critical col-critical' };
+  const avatarBg = { Optimal:'rgba(34,197,94,0.2)', Moderate:'rgba(245,158,11,0.2)', Elevated:'rgba(249,115,22,0.2)', Critical:'rgba(239,68,68,0.2)' };
+
+  document.getElementById('coach-crew').innerHTML = crew.map(c => `
+    <div class="crew-row">
+      <div class="crew-avatar" style="background:${avatarBg[c.state]}">${c.initials}</div>
+      <div>
+        <div class="crew-name">${c.name}</div>
+        <div class="crew-sub">${c.shift} shift</div>
+      </div>
+      <span class="crew-badge ${stateColor[c.state]}">${c.state}</span>
+    </div>
+  `).join('');
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+
+const NAV_MAP = { log: 'Log', results: 'Status', workouts: 'Train', history: 'History', profile: 'Profile' };
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  const navLabel = NAV_MAP[name];
+  if (navLabel) {
+    document.querySelectorAll('.nav-tab').forEach(t => {
+      if (t.textContent.trim() === navLabel) t.classList.add('active');
+    });
+  }
+  if (name === 'history') renderHistory();
+  if (name === 'results' && appState.lastResult) renderResults(appState.lastResult);
+  if (name === 'workouts') renderWorkoutScreen();
+  if (name === 'profile') loadProfile();
+  window.scrollTo(0,0);
+}
+
+// ── REVEAL ANIMATIONS ─────────────────────────────────────────────────────────
+
+function initReveal() {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INVITE GATE ───────────────────────────────────────────────────────────────
+
+// Beta invite codes — change/add codes here as you onboard volunteers
+const VALID_CODES = ['FIRSTRESPONDER26', 'BETA001', 'OPREADY'];
+
+function checkInvite() {
+  const input = document.getElementById('gate-code').value.trim().toUpperCase();
+  if (VALID_CODES.includes(input)) {
+    document.getElementById('gate').style.display = 'none';
+    localStorage.setItem('or_invite_verified', 'true');
+    checkFirstRun();
+  } else {
+    document.getElementById('gate-error').style.display = 'block';
+  }
+}
+
+// Skip gate if already verified this device
+if (localStorage.getItem('or_invite_verified') === 'true') {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('gate').style.display = 'none';
+  });
+}
+
+// ── PROFILE ──────────────────────────────────────────────────────────────────
+
+function saveProfile() {
+  const profile = {
+    name: document.getElementById('p-name').value,
+    weight: document.getElementById('p-weight').value,
+    role: document.getElementById('p-role').value,
+    timeFormat: document.getElementById('p-timeformat').value,
+    bodyFat: document.getElementById('p-bodyfat').value,
+    goalWeight: document.getElementById('p-goalweight').value,
+    ptScore: document.getElementById('p-ptscore').value,
+    ptDate: document.getElementById('p-ptdate').value,
+    goal: document.getElementById('p-goal').value,
+  };
+  localStorage.setItem('or_profile', JSON.stringify(profile));
+  appState.profile = profile;
+  updateGreeting();
+}
+
+function loadProfile() {
+  const saved = localStorage.getItem('or_profile');
+  if (!saved) return;
+  const p = JSON.parse(saved);
+  appState.profile = p;
+  if (p.name) document.getElementById('p-name').value = p.name;
+  if (p.weight) document.getElementById('p-weight').value = p.weight;
+  if (p.role) document.getElementById('p-role').value = p.role;
+  if (p.timeFormat) document.getElementById('p-timeformat').value = p.timeFormat;
+  if (p.bodyFat) document.getElementById('p-bodyfat').value = p.bodyFat;
+  if (p.goalWeight) document.getElementById('p-goalweight').value = p.goalWeight;
+  if (p.ptScore) document.getElementById('p-ptscore').value = p.ptScore;
+  if (p.ptDate) document.getElementById('p-ptdate').value = p.ptDate;
+  if (p.goal) document.getElementById('p-goal').value = p.goal;
+  updateGreeting();
+}
+
+function updateGreeting() {
+  const name = appState.profile?.name;
+  const el = document.getElementById('log-greeting');
+  if (name) {
+    el.innerHTML = `HEY ${name.split(' ')[0].toUpperCase()},<br><span>HOW'D YOU SLEEP?</span>`;
+  } else {
+    el.innerHTML = `HOW'S YOUR<br><span>BODY TODAY?</span>`;
+  }
+}
+
+function toggleAdvanced() {
+  const content = document.getElementById('adv-content');
+  const chevron = document.getElementById('adv-chevron');
+  const isOpen = content.style.display === 'block';
+  content.style.display = isOpen ? 'none' : 'block';
+  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+// ── TIME FORMAT (12h / 24h) ────────────────────────────────────────────────────
+
+function getTimeFormat() {
+  const saved = localStorage.getItem('or_profile');
+  if (saved) {
+    const p = JSON.parse(saved);
+    if (p.timeFormat) return p.timeFormat;
+  }
+  return '12';
+}
+
+function formatTimeForDisplay(hours24, minutes) {
+  const fmt = getTimeFormat();
+  if (fmt === '24') {
+    return `${hours24.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}`;
+  }
+  const ampm = hours24 >= 12 ? 'PM' : 'AM';
+  const h12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+  return `${h12}:${minutes.toString().padStart(2,'0')} ${ampm}`;
+}
+
+function syncTimeDisplay(hiddenId, displayId) {
+  const val = document.getElementById(hiddenId)?.value;
+  if (!val) return;
+  const displayEl = document.getElementById(displayId);
+  if (!displayEl) return; // display field removed — native input handles its own display
+  const [h, m] = val.split(':').map(Number);
+  displayEl.value = formatTimeForDisplay(h, m);
+}
+
+function refreshTimeDisplays() {
+  // No-op — native time input handles its own display formatting
+}
+
+// ── WORKOUT LOG ───────────────────────────────────────────────────────────────
+
+function logWorkout() {
+  const completed = document.getElementById('w-completed').value;
+  const type = document.getElementById('w-type').value;
+  const duration = document.getElementById('w-duration').value;
+  const rpe = document.getElementById('w-rpe').value;
+  const notes = document.getElementById('w-notes').value;
+
+  if (!completed) { showToast('Select whether you trained today'); return; }
+
+  const entry = {
+    date: new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}),
+    timestamp: Date.now(),
+    completed, type, duration, rpe, notes
+  };
+
+  const workouts = JSON.parse(localStorage.getItem('or_workouts') || '[]');
+  workouts.push(entry);
+  if (workouts.length > 60) workouts.shift();
+  localStorage.setItem('or_workouts', JSON.stringify(workouts));
+
+  // Clear form
+  document.getElementById('w-completed').value = '';
+  document.getElementById('w-type').value = '';
+  document.getElementById('w-duration').value = '';
+  document.getElementById('w-rpe').value = '';
+  document.getElementById('w-notes').value = '';
+
+  showToast('Session saved');
+  renderWorkoutHistory();
+}
+
+function renderWorkoutScreen() {
+  const r = appState.lastResult;
+  const card = document.getElementById('workout-prescription-card');
+  const summary = document.getElementById('workout-rx-summary');
+  if (r && r.rx) {
+    card.style.display = 'block';
+    const sc = (r.rx.adjustedState || r.state).toLowerCase();
+    const cardClass = { optimal:'optimal', moderate:'moderate', elevated:'elevated', critical:'critical' }[sc] || 'moderate';
+    const modeColors = { 'PERFORM':'var(--optimal)', 'TRAIN SMART':'var(--moderate)', 'RECOVERY TRAINING':'var(--elevated)', 'DUTY MODE':'var(--critical)' };
+    summary.innerHTML = `<span style="color:${modeColors[r.rx.mode]||'var(--text-2)'};">⬤ ${r.rx.mode}</span> — ${r.rx.training.title}`;
+    let html = '';
+    if (r.rx.wasOverridden) {
+      html += `<div style="font-size:12px;color:var(--elevated);margin-bottom:10px;padding:8px 12px;background:rgba(249,115,22,0.08);border-radius:8px;">⚠ Prescription adjusted from ${r.rx.originalState} — see Status tab for details</div>`;
+    }
+    if (r.rx.training.injuryNote) {
+      html += `<div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:13px;color:var(--text-2);line-height:1.6;">
+        <span style="font-weight:600;color:var(--critical);">Injury risk — </span>${r.rx.training.injuryNote}</div>`;
+    }
+    r.rx.training.domains.forEach(d => {
+      html += `<div style="background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:5px;">${d.name}</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:8px;">${d.detail}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">${d.tags.map(t=>`<span class="rx-tag">${t}</span>`).join('')}</div>
+      </div>`;
+    });
+    if (r.rx.training.nutritionTiming) {
+      html += `<div style="background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:5px;">Nutrition timing</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.6;">${r.rx.training.nutritionTiming}</div>
+      </div>`;
+    }
+    document.getElementById('workout-rx-detail').innerHTML = html;
+  } else {
+    card.style.display = 'none';
+    summary.textContent = 'Log today\'s readiness first to get a tailored prescription.';
+  }
+  renderWorkoutHistory();
+}
+
+function renderWorkoutHistory() {
+  const workouts = JSON.parse(localStorage.getItem('or_workouts') || '[]').slice().reverse().slice(0, 10);
+  const el = document.getElementById('workout-history-list');
+  if (!workouts.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">💪</div><p>No sessions logged yet.</p></div>';
+    return;
+  }
+  const typeLabels = { strength:'Strength', hiit:'HIIT', zone2:'Zone 2', mobility:'Mobility', skills:'Skills', rest:'Rest' };
+  const completedLabel = { yes:'Completed', modified:'Modified', no:'Rest day' };
+  el.innerHTML = workouts.map(w => `
+    <div class="history-item">
+      <div>
+        <div class="history-date">${w.date}</div>
+        <div class="history-state" style="font-size:13px;">${typeLabels[w.type] || 'Session'} — ${completedLabel[w.completed] || ''}</div>
+        ${w.notes ? `<div style="font-size:11px;color:var(--text-3);margin-top:2px;">${w.notes}</div>` : ''}
+      </div>
+      <div class="history-score">${w.duration ? w.duration + 'm' : ''}${w.rpe ? ' · RPE ' + w.rpe : ''}</div>
+    </div>
+  `).join('');
+}
+
+// ── FIRST-RUN SETUP WIZARD ──────────────────────────────────────────────────────
+
+function checkFirstRun() {
+  if (localStorage.getItem('or_onboarded') === 'true') return;
+  if (localStorage.getItem('or_invite_verified') !== 'true') return; // wait until past gate
+  document.getElementById('wizard').style.display = 'flex';
+}
+
+function completeWizard() {
+  const name = document.getElementById('wiz-name').value;
+  const role = document.getElementById('wiz-role').value;
+  const weight = document.getElementById('wiz-weight').value;
+  const timeFormat = document.querySelector('input[name="wiz-time"]:checked')?.value || '12';
+
+  const profile = { name, role, weight, timeFormat };
+  localStorage.setItem('or_profile', JSON.stringify(profile));
+  localStorage.setItem('or_onboarded', 'true');
+  appState.profile = profile;
+
+  document.getElementById('wizard').style.display = 'none';
+  loadProfile();
+  showToast(`Welcome${name ? ', ' + name.split(' ')[0] : ''}`);
+}
+
+function skipWizard() {
+  localStorage.setItem('or_onboarded', 'true');
+  document.getElementById('wizard').style.display = 'none';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  initReveal();
+  loadProfile();
+  // Pre-fill caffeine time to 2 hours ago as a sensible default
+  const d = new Date(); d.setHours(d.getHours() - 2);
+  const defaultTime = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+  document.getElementById('c-time-hidden').value = defaultTime;
+  // Reload last result if exists
+  if (appState.lastResult) renderResults(appState.lastResult);
+  checkFirstRun();
+});
+</script>
+</body>
+</html>
